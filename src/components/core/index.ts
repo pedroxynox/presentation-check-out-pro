@@ -15,7 +15,7 @@ export type { ScenePhase, WorldKey, SceneSegment } from './experience.config'
 export { localProgress, resolveScene } from './SceneManager'
 
 // Camera
-export { CameraRig } from './CameraRig'
+export { CameraRig, ResponsiveCamera } from './CameraRig'
 export { CAMERA_PATH, applyKeyframe } from './CameraManager'
 export type { CameraKeyframe } from './CameraManager'
 

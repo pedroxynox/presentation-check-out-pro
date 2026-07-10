@@ -1,7 +1,35 @@
-import { useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { useThree } from '@react-three/fiber'
+import { PerspectiveCamera } from 'three'
 import { masterTimeline } from './MasterTimeline'
 import { CAMERA_PATH } from './CameraManager'
+
+const DEG = Math.PI / 180
+/** Horizontal FOV the scenes are framed for (landscape). */
+const TARGET_HFOV = 78 * DEG
+const MIN_VFOV = 45
+const MAX_VFOV = 82
+
+/**
+ * Keeps scene framing usable on any aspect ratio (portrait phones included) by
+ * deriving the camera's vertical FOV from the viewport so the intended
+ * *horizontal* field of view is preserved (clamped to avoid distortion).
+ */
+export function ResponsiveCamera() {
+  const camera = useThree((state) => state.camera)
+  const size = useThree((state) => state.size)
+
+  useEffect(() => {
+    if (!(camera instanceof PerspectiveCamera)) return
+    const aspect = size.width / Math.max(1, size.height)
+    const vFovRad = 2 * Math.atan(Math.tan(TARGET_HFOV / 2) / Math.max(0.0001, aspect))
+    const vFovDeg = Math.min(MAX_VFOV, Math.max(MIN_VFOV, vFovRad / DEG))
+    camera.fov = vFovDeg
+    camera.updateProjectionMatrix()
+  }, [camera, size])
+
+  return null
+}
 
 /**
  * Drives the real R3F camera from the GSAP master timeline.
