@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: theme('colors.brand.bg');
+    color: #f3f4f6;
+    font-family: theme('fontFamily.sans');
+    overflow: hidden; /* The experience owns scroll/scrub */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
