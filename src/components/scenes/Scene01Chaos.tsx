@@ -4,6 +4,7 @@ import type { Group } from 'three'
 import { Manager, Cashier, Customer } from '../characters'
 import { PALETTES, masterTimeline } from '../core'
 import { clamp, mapRange } from '../../utils'
+import { SupermarketSet } from './shared/SupermarketSet'
 
 /** Negative KPI marker: a red panel with a downward arrow, floating above a queue. */
 function NegativeIndicator({ position }: { position: [number, number, number] }) {
@@ -16,23 +17,6 @@ function NegativeIndicator({ position }: { position: [number, number, number] })
       <mesh position={[0, -0.55, 0.05]} rotation={[0, 0, Math.PI]}>
         <coneGeometry args={[0.28, 0.45, 4]} />
         <meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.9} toneMapped={false} />
-      </mesh>
-    </group>
-  )
-}
-
-/** A supermarket shelf (aisle) made of stacked toon boxes. */
-function Shelf({ position }: { position: [number, number, number] }) {
-  const p = PALETTES.real
-  return (
-    <group position={position}>
-      <mesh castShadow position={[0, 0.6, 0]}>
-        <boxGeometry args={[3.2, 1.2, 0.8]} />
-        <meshToonMaterial color={p.accent} />
-      </mesh>
-      <mesh castShadow position={[0, 1.5, 0]}>
-        <boxGeometry args={[3.2, 0.5, 0.8]} />
-        <meshToonMaterial color="#c98f5a" />
       </mesh>
     </group>
   )
@@ -93,29 +77,11 @@ export default function Scene01Chaos() {
       <ambientLight intensity={0.5} color={p.fill} />
       <directionalLight position={[6, 10, 4]} intensity={1.2} color={p.key} castShadow />
 
-      {/* Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[60, 60]} />
-        <meshToonMaterial color={p.background} />
-      </mesh>
+      {/* Static supermarket environment */}
+      <SupermarketSet />
 
-      {/* Aisles / shelves in the back */}
-      <Shelf position={[-4, 0, -4]} />
-      <Shelf position={[0, 0, -4]} />
-      <Shelf position={[4, 0, -4]} />
-
-      {/* Checkout counter (single open lane -> long queue) */}
-      <mesh position={[-3, 0.5, 0]} castShadow>
-        <boxGeometry args={[2, 1, 1.2]} />
-        <meshToonMaterial color="#8a8f98" />
-      </mesh>
+      {/* Cashier at the single open lane */}
       <Cashier position={[-3, 0, -0.9]} />
-
-      {/* A second, closed lane (adds to the "saturated" feel) */}
-      <mesh position={[3, 0.5, 0]} castShadow>
-        <boxGeometry args={[2, 1, 1.2]} />
-        <meshToonMaterial color="#6b7280" />
-      </mesh>
 
       {/* Long waiting line */}
       <group ref={crowdRef}>

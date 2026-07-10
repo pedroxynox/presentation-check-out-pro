@@ -1,7 +1,7 @@
 import { Suspense, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { EffectComposer } from '@react-three/postprocessing'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { TimelineProvider, CameraRig, paletteForPhase } from './components/core'
 import { SCENE_REGISTRY } from './components/scenes/registry'
 import { SceneBloom } from './components/effects'
@@ -49,8 +49,43 @@ function Experience() {
         </EffectComposer>
       </Canvas>
 
+      <TitleOverlay />
       <Hud />
     </div>
+  )
+}
+
+/** Framer Motion hero title, revealed during the Freeze scene. */
+function TitleOverlay() {
+  const { elapsed } = useTimeline()
+  const visible = elapsed >= 37 && elapsed < 45.5
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          key="brand-title"
+          initial={{ opacity: 0, scale: 0.92, filter: 'blur(14px)' }}
+          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, filter: 'blur(10px)' }}
+          transition={{ duration: 1.1, ease: 'easeOut' }}
+          className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center"
+        >
+          <h1
+            className="font-display text-5xl font-bold tracking-tight text-white sm:text-7xl"
+            style={{ textShadow: '0 0 40px rgba(59,130,246,0.85)' }}
+          >
+            CHECK-OUT PRO
+          </h1>
+          <p
+            className="mt-3 font-display text-lg uppercase tracking-[0.4em] text-brand-neon sm:text-2xl"
+            style={{ textShadow: '0 0 24px rgba(57,255,208,0.7)' }}
+          >
+            Gestión Inteligente
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
