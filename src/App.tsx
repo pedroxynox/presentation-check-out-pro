@@ -6,6 +6,7 @@ import { TimelineProvider, CameraRig, paletteForPhase } from './components/core'
 import { SCENE_REGISTRY } from './components/scenes/registry'
 import { SceneBloom } from './components/effects'
 import { useScene, useTimeline, useAudio } from './hooks'
+import { clamp, mapRange } from './utils'
 
 /**
  * Root of the Check-Out Pro cinematic experience.
@@ -50,8 +51,55 @@ function Experience() {
       </Canvas>
 
       <TitleOverlay />
+      <OptimizationStats />
       <Hud />
     </div>
+  )
+}
+
+/** Framer Motion metrics that count up during the Optimization scene. */
+function OptimizationStats() {
+  const { elapsed } = useTimeline()
+  const active = elapsed >= 86 && elapsed < 106
+  const p = clamp(mapRange(elapsed, 88, 100, 0, 1), 0, 1)
+
+  const stats = [
+    { label: 'Eficiencia', sign: '+', value: Math.round(p * 48) },
+    { label: 'Tiempos de espera', sign: '−', value: Math.round(p * 72) },
+    { label: 'Ventas', sign: '+', value: Math.round(p * 35) },
+  ]
+
+  return (
+    <AnimatePresence>
+      {active && (
+        <motion.div
+          key="opt-stats"
+          initial={{ opacity: 0, y: -24 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -24 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="pointer-events-none absolute inset-x-0 top-10 flex justify-center gap-4 px-6"
+        >
+          {stats.map((s) => (
+            <div
+              key={s.label}
+              className="min-w-[8rem] rounded-2xl border border-white/10 bg-black/30 px-5 py-3 text-center backdrop-blur-sm"
+            >
+              <div
+                className="font-display text-3xl font-bold text-emerald-400 sm:text-4xl"
+                style={{ textShadow: '0 0 24px rgba(34,197,94,0.7)' }}
+              >
+                {s.sign}
+                {s.value}%
+              </div>
+              <div className="mt-1 font-mono text-[0.65rem] uppercase tracking-widest text-white/70">
+                {s.label}
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
