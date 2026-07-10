@@ -1,20 +1,20 @@
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { EffectComposer } from '@react-three/postprocessing'
 import { motion } from 'framer-motion'
-import { TimelineProvider, paletteForPhase } from './components/core'
+import { TimelineProvider, CameraRig, paletteForPhase } from './components/core'
 import { SCENE_REGISTRY } from './components/scenes/registry'
-import { SceneBloom, SceneDepthOfField } from './components/effects'
+import { SceneBloom } from './components/effects'
 import { useScene, useTimeline, useAudio } from './hooks'
 
 /**
  * Root of the Check-Out Pro cinematic experience.
  *
  * Architecture:
- *  - GSAP master timeline (core) drives all choreography (120s).
+ *  - GSAP master timeline (singleton) drives all choreography (120s).
+ *  - CameraRig binds the real camera to that timeline (GSAP owns the camera).
  *  - Scenes are code-split and mounted on demand by phase (Suspense + lazy).
- *  - React Three Fiber renders 3D; postprocessing adds bloom + depth of field.
- *  - Framer Motion drives the UI HUD.
+ *  - Postprocessing adds bloom; Framer Motion drives the UI HUD.
  */
 function App() {
   return (
@@ -26,19 +26,26 @@ function App() {
 
 function Experience() {
   const { phase } = useScene()
+  const { play } = useTimeline()
   const palette = paletteForPhase(phase)
   const ActiveScene = SCENE_REGISTRY[phase]
+
+  // Auto-start the cinematic on load.
+  useEffect(() => {
+    play()
+  }, [play])
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
       <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 3, 14], fov: 50 }}>
         <color attach="background" args={[palette.background]} />
+        <fog attach="fog" args={[palette.background, 16, 48]} />
+        <CameraRig />
         <Suspense fallback={null}>
           <ActiveScene />
         </Suspense>
         <EffectComposer>
           <SceneBloom />
-          <SceneDepthOfField />
         </EffectComposer>
       </Canvas>
 

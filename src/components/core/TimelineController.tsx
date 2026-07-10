@@ -1,14 +1,12 @@
 import {
   createContext,
   useCallback,
-  useLayoutEffect,
+  useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react'
 import type { PropsWithChildren } from 'react'
-import { createMasterTimeline } from './MasterTimeline'
-import type { MasterTimelineHandle } from './MasterTimeline'
+import { masterTimeline } from './MasterTimeline'
 import { EXPERIENCE_DURATION, segmentForTime } from './experience.config'
 import type { SceneSegment } from './experience.config'
 
@@ -36,40 +34,39 @@ export const TimelineContext = createContext<TimelineContextValue>({
   restart: noop,
 })
 
-/** Owns the single GSAP master timeline that drives the whole experience. */
+/**
+ * React bridge to the GSAP master timeline singleton. Subscribes to time
+ * updates and exposes transport controls. Does NOT own the timeline — the
+ * singleton does — so components inside the Canvas share the same playhead.
+ */
 export function TimelineProvider({ children }: PropsWithChildren) {
-  const handleRef = useRef<MasterTimelineHandle | null>(null)
-  const [elapsed, setElapsed] = useState(0)
+  const [elapsed, setElapsed] = useState(masterTimeline.elapsed)
   const [isPlaying, setIsPlaying] = useState(false)
 
-  useLayoutEffect(() => {
-    const handle = createMasterTimeline({
-      onUpdate: setElapsed,
-      onComplete: () => setIsPlaying(false),
+  useEffect(() => {
+    const unsubscribe = masterTimeline.subscribe((t) => {
+      setElapsed(t)
+      setIsPlaying(masterTimeline.isPlaying)
     })
-    handleRef.current = handle
-    return () => {
-      handle.timeline.kill()
-      handleRef.current = null
-    }
+    return unsubscribe
   }, [])
 
   const play = useCallback(() => {
-    handleRef.current?.timeline.play()
+    masterTimeline.play()
     setIsPlaying(true)
   }, [])
 
   const pause = useCallback(() => {
-    handleRef.current?.timeline.pause()
+    masterTimeline.pause()
     setIsPlaying(false)
   }, [])
 
   const seek = useCallback((seconds: number) => {
-    handleRef.current?.timeline.seek(seconds)
+    masterTimeline.seek(seconds)
   }, [])
 
   const restart = useCallback(() => {
-    handleRef.current?.timeline.restart()
+    masterTimeline.restart()
     setIsPlaying(true)
   }, [])
 

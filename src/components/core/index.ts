@@ -1,6 +1,6 @@
-// Timeline
-export { createMasterTimeline } from './MasterTimeline'
-export type { MasterTimelineHandle, MasterTimelineOptions } from './MasterTimeline'
+// Timeline (single GSAP master, singleton)
+export { masterTimeline } from './MasterTimeline'
+export type { TimeListener } from './MasterTimeline'
 export { TimelineProvider, TimelineContext } from './TimelineController'
 export type { TimelineContextValue } from './TimelineController'
 
@@ -15,6 +15,7 @@ export type { ScenePhase, WorldKey, SceneSegment } from './experience.config'
 export { localProgress, resolveScene } from './SceneManager'
 
 // Camera
+export { CameraRig } from './CameraRig'
 export { CAMERA_PATH, applyKeyframe } from './CameraManager'
 export type { CameraKeyframe } from './CameraManager'
 

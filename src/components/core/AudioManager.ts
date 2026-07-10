@@ -1,5 +1,7 @@
 import { Howl, Howler } from 'howler'
 
+const noop = (): void => {}
+
 export interface TrackConfig {
   /** Unique identifier used to trigger the track from the timeline/scenes. */
   id: string
@@ -30,6 +32,10 @@ export class AudioManager {
         loop: config.loop ?? false,
         volume: config.volume ?? 1,
         preload: true,
+        // Fail silently if an asset is missing (placeholders during dev), so
+        // the console stays clean for the non-technical owner.
+        onloaderror: noop,
+        onplayerror: noop,
       }),
     )
   }
