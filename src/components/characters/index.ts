@@ -1,4 +1,5 @@
+export { Character, ToonMat } from './Character'
+export type { CharacterProps, CharacterColors } from './Character'
 export { Manager } from './Manager'
 export { Cashier } from './Cashier'
 export { Customer } from './Customer'
-export type { CharacterProps } from './Manager'
