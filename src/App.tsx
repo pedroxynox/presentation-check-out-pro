@@ -52,8 +52,39 @@ function Experience() {
 
       <TitleOverlay />
       <OptimizationStats />
+      <OutroOverlay />
       <Hud />
     </div>
+  )
+}
+
+/** Framer Motion outro tagline (white content), revealed as the logo locks in. */
+function OutroOverlay() {
+  const { elapsed } = useTimeline()
+  const active = elapsed >= 117.8
+
+  return (
+    <AnimatePresence>
+      {active && (
+        <motion.div
+          key="outro-tagline"
+          initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 1, ease: 'easeOut' }}
+          className="pointer-events-none absolute inset-x-0 bottom-[16%] flex flex-col items-center text-center"
+        >
+          <p
+            className="font-display text-2xl font-bold uppercase tracking-[0.35em] text-white sm:text-4xl"
+            style={{ textShadow: '0 0 34px rgba(255,255,255,0.55)' }}
+          >
+            Gestión Inteligente
+          </p>
+          <p className="mt-3 font-sans text-sm text-blue-100/80 sm:text-lg">
+            Transformando operaciones en resultados
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 

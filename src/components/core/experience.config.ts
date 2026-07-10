@@ -15,7 +15,7 @@ export type ScenePhase =
   | 'outro'
 
 /** Which visual "world" a phase belongs to (drives palette/lighting). */
-export type WorldKey = 'real' | 'digital' | 'optimized'
+export type WorldKey = 'real' | 'digital' | 'optimized' | 'brand'
 
 export interface SceneSegment {
   id: number
@@ -35,7 +35,7 @@ export const SCENE_SEGMENTS: readonly SceneSegment[] = [
   { id: 4, phase: 'dataworld', world: 'digital', start: 60, end: 85, label: 'Data World' },
   { id: 5, phase: 'optimization', world: 'optimized', start: 85, end: 105, label: 'Optimización' },
   { id: 6, phase: 'return', world: 'optimized', start: 105, end: 115, label: 'Retorno' },
-  { id: 7, phase: 'outro', world: 'optimized', start: 115, end: EXPERIENCE_DURATION, label: 'Outro' },
+  { id: 7, phase: 'outro', world: 'brand', start: 115, end: EXPERIENCE_DURATION, label: 'Outro' },
 ] as const
 
 const FALLBACK: SceneSegment = SCENE_SEGMENTS[SCENE_SEGMENTS.length - 1]

@@ -19,6 +19,8 @@ export const PALETTES: Record<WorldKey, WorldPalette> = {
   real: { background: '#f4ecdd', key: '#fff3d6', fill: '#e8dcc4', accent: '#d9b382' },
   digital: { background: '#050816', key: '#3b82f6', fill: '#22d3ee', accent: '#7c3aed' },
   optimized: { background: '#04120b', key: '#22c55e', fill: '#ffffff', accent: '#d4af37' },
+  // brand: deep royal blue backdrop with clean white content (Outro).
+  brand: { background: '#0a1f6b', key: '#ffffff', fill: '#dbe4ff', accent: '#5b8bff' },
 }
 
 export function paletteForWorld(world: WorldKey): WorldPalette {
@@ -38,7 +40,7 @@ const SEGMENT_BY_PHASE: Record<ScenePhase, WorldKey> = {
   dataworld: 'digital',
   optimization: 'optimized',
   return: 'optimized',
-  outro: 'optimized',
+  outro: 'brand',
 }
 
 /** Convenience: palette directly from elapsed time. */
