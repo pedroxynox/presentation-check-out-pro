@@ -137,6 +137,7 @@ function Shockwaves() {
 export default function Scene05Optimization() {
   return (
     <group name="scene05-optimization">
+      <color attach="background" args={['#04120b']} />
       <ambientLight intensity={0.7} color={P.fill} />
       <directionalLight position={[5, 12, 6]} intensity={1.3} color={P.key} castShadow />
       <pointLight position={[0, 4, 6]} intensity={1.5} color={P.accent} distance={40} />

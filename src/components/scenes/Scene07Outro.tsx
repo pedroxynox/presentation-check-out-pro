@@ -139,6 +139,7 @@ export default function Scene07Outro() {
 
   return (
     <group name="scene07-outro">
+      <color attach="background" args={['#0a1f6b']} />
       <ambientLight intensity={0.9} color={P.fill} />
       <directionalLight position={[3, 5, 6]} intensity={1.1} color={WHITE} />
       <pointLight position={[0, 0, 6]} intensity={1.6} color={P.accent} distance={30} />

@@ -2,11 +2,15 @@ import { Suspense, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { EffectComposer } from '@react-three/postprocessing'
 import { AnimatePresence, motion } from 'framer-motion'
-import { TimelineProvider, CameraRig, ResponsiveCamera, paletteForPhase } from './components/core'
+import { TimelineProvider, CameraRig, ResponsiveCamera } from './components/core'
 import { SCENE_REGISTRY } from './components/scenes/registry'
 import { SceneBloom } from './components/effects'
+import { CinematicBackdrop } from './components/CinematicBackdrop'
 import { useScene, useTimeline, useCinematicAudio } from './hooks'
 import { clamp, mapRange } from './utils'
+
+/** Scenes whose look is real-time WebGL (neon) — they get bloom + own bg. */
+const NEON_SCENES = new Set(['activation', 'dataworld', 'optimization', 'outro'])
 
 /**
  * Root of the Check-Out Pro cinematic experience.
@@ -28,8 +32,8 @@ function App() {
 function Experience() {
   const { phase } = useScene()
   const { play } = useTimeline()
-  const palette = paletteForPhase(phase)
   const ActiveScene = SCENE_REGISTRY[phase]
+  const neon = NEON_SCENES.has(phase)
 
   // Auto-start the cinematic on load.
   useEffect(() => {
@@ -37,18 +41,28 @@ function Experience() {
   }, [play])
 
   return (
-    <div className="relative h-[100dvh] w-full overflow-hidden">
-      <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 3, 14], fov: 50 }}>
-        <color attach="background" args={[palette.background]} />
-        <fog attach="fog" args={[palette.background, 16, 48]} />
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-black">
+      {/* Full-bleed cinematic backdrop (photographic textures / gradients) */}
+      <CinematicBackdrop />
+
+      {/* Transparent 3D layer on top for neon / particles / logo */}
+      <Canvas
+        shadows
+        dpr={[1, 2]}
+        gl={{ alpha: true }}
+        camera={{ position: [0, 3, 14], fov: 50 }}
+        style={{ position: 'absolute', inset: 0 }}
+      >
         <ResponsiveCamera />
         <CameraRig />
         <Suspense fallback={null}>
           <ActiveScene />
         </Suspense>
-        <EffectComposer>
-          <SceneBloom />
-        </EffectComposer>
+        {neon && (
+          <EffectComposer>
+            <SceneBloom />
+          </EffectComposer>
+        )}
       </Canvas>
 
       <TitleOverlay />

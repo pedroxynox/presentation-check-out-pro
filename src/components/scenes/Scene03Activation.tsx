@@ -107,6 +107,7 @@ export default function Scene03Activation() {
 
   return (
     <group name="scene03-activation">
+      <color attach="background" args={['#050816']} />
       <ambientLight intensity={0.4} color={p.fill} />
       <pointLight ref={coreLightRef} position={[0, 1.6, 0]} intensity={2.5} color={p.accent} distance={30} />
 

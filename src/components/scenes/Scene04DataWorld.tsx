@@ -224,6 +224,7 @@ function ScheduleBlock({ position, color }: { position: [number, number, number]
 export default function Scene04DataWorld() {
   return (
     <group name="scene04-dataworld">
+      <color attach="background" args={['#04102e']} />
       <ambientLight intensity={0.45} color={P.fill} />
       <directionalLight position={[4, 12, 6]} intensity={1} color={P.key} castShadow />
       <pointLight position={[0, 3, 4]} intensity={1.4} color={P.accent} distance={40} />
