@@ -1,3 +1,5 @@
 export { useTimeline } from './useTimeline'
 export { useAudio } from './useAudio'
 export type { UseAudioApi } from './useAudio'
+export { useScene } from './useScene'
+export type { SceneState } from './useScene'

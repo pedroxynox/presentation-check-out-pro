@@ -1,37 +1,51 @@
 /**
- * Master configuration for the 120-second Check-Out Pro Web Experience.
- *
- * The whole narrative is driven by a single GSAP master timeline whose total
- * length equals EXPERIENCE_DURATION. Each scene owns a segment of that
- * timeline. Scenes read the current phase to mount/unmount their 3D content.
+ * Master configuration for the 120-second Check-Out Pro cinematic experience.
+ * A single GSAP master timeline drives all 7 scenes; each scene owns a segment.
  */
 
-export const EXPERIENCE_DURATION = 120 // seconds
+export const EXPERIENCE_DURATION = 120 // seconds (hard requirement, ±250ms)
 
-export type ScenePhase = 'supermarket' | 'dataworld' | 'outro'
+export type ScenePhase =
+  | 'chaos'
+  | 'freeze'
+  | 'activation'
+  | 'dataworld'
+  | 'optimization'
+  | 'return'
+  | 'outro'
+
+/** Which visual "world" a phase belongs to (drives palette/lighting). */
+export type WorldKey = 'real' | 'digital' | 'optimized'
 
 export interface SceneSegment {
+  id: number
   phase: ScenePhase
-  /** Start time within the master timeline, in seconds. */
+  world: WorldKey
+  /** Start time on the master timeline, in seconds. */
   start: number
-  /** End time within the master timeline, in seconds. */
+  /** End time on the master timeline, in seconds. */
   end: number
-  /** Human-readable label used by the HUD. */
   label: string
 }
 
-/**
- * Segment map for the master timeline. Tweak these boundaries as the
- * narrative choreography evolves.
- */
 export const SCENE_SEGMENTS: readonly SceneSegment[] = [
-  { phase: 'supermarket', start: 0, end: 45, label: 'Supermarket' },
-  { phase: 'dataworld', start: 45, end: 95, label: 'Data World' },
-  { phase: 'outro', start: 95, end: EXPERIENCE_DURATION, label: 'Final Outro' },
+  { id: 1, phase: 'chaos', world: 'real', start: 0, end: 30, label: 'El Caos' },
+  { id: 2, phase: 'freeze', world: 'real', start: 30, end: 45, label: 'Congelación' },
+  { id: 3, phase: 'activation', world: 'digital', start: 45, end: 60, label: 'Activación' },
+  { id: 4, phase: 'dataworld', world: 'digital', start: 60, end: 85, label: 'Data World' },
+  { id: 5, phase: 'optimization', world: 'optimized', start: 85, end: 105, label: 'Optimización' },
+  { id: 6, phase: 'return', world: 'optimized', start: 105, end: 115, label: 'Retorno' },
+  { id: 7, phase: 'outro', world: 'optimized', start: 115, end: EXPERIENCE_DURATION, label: 'Outro' },
 ] as const
 
-/** Resolve which scene should be active for a given elapsed time (seconds). */
+const FALLBACK: SceneSegment = SCENE_SEGMENTS[SCENE_SEGMENTS.length - 1]
+
+/** Resolve the active segment for a given elapsed time (seconds). */
+export function segmentForTime(seconds: number): SceneSegment {
+  return SCENE_SEGMENTS.find((s) => seconds >= s.start && seconds < s.end) ?? FALLBACK
+}
+
+/** Resolve the active phase for a given elapsed time (seconds). */
 export function phaseForTime(seconds: number): ScenePhase {
-  const segment = SCENE_SEGMENTS.find((s) => seconds >= s.start && seconds < s.end)
-  return segment?.phase ?? 'outro'
+  return segmentForTime(seconds).phase
 }

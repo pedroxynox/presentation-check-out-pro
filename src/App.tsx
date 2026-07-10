@@ -1,17 +1,20 @@
+import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
+import { EffectComposer } from '@react-three/postprocessing'
 import { motion } from 'framer-motion'
-import { TimelineProvider } from './components/core'
-import { Supermarket, DataWorld, FinalOutro } from './components/scenes'
-import { useTimeline } from './hooks'
+import { TimelineProvider, paletteForPhase } from './components/core'
+import { SCENE_REGISTRY } from './components/scenes/registry'
+import { SceneBloom, SceneDepthOfField } from './components/effects'
+import { useScene, useTimeline, useAudio } from './hooks'
 
 /**
- * Root of the Check-Out Pro Web Experience.
+ * Root of the Check-Out Pro cinematic experience.
  *
- * Architecture split:
- *  - GSAP master timeline (core) drives cinematic scene choreography.
- *  - Framer Motion drives the UI overlay (HUD).
- *  - React Three Fiber renders the 3D scenes; the active scene mounts based on
- *    the current timeline phase.
+ * Architecture:
+ *  - GSAP master timeline (core) drives all choreography (120s).
+ *  - Scenes are code-split and mounted on demand by phase (Suspense + lazy).
+ *  - React Three Fiber renders 3D; postprocessing adds bloom + depth of field.
+ *  - Framer Motion drives the UI HUD.
  */
 function App() {
   return (
@@ -22,15 +25,21 @@ function App() {
 }
 
 function Experience() {
-  const { phase } = useTimeline()
+  const { phase } = useScene()
+  const palette = paletteForPhase(phase)
+  const ActiveScene = SCENE_REGISTRY[phase]
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-brand-bg">
-      <Canvas shadows camera={{ position: [0, 2, 9], fov: 50 }}>
-        <color attach="background" args={['#050510']} />
-        {phase === 'supermarket' && <Supermarket />}
-        {phase === 'dataworld' && <DataWorld />}
-        {phase === 'outro' && <FinalOutro />}
+    <div className="relative h-screen w-screen overflow-hidden">
+      <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 3, 14], fov: 50 }}>
+        <color attach="background" args={[palette.background]} />
+        <Suspense fallback={null}>
+          <ActiveScene />
+        </Suspense>
+        <EffectComposer>
+          <SceneBloom />
+          <SceneDepthOfField />
+        </EffectComposer>
       </Canvas>
 
       <Hud />
@@ -38,9 +47,11 @@ function Experience() {
   )
 }
 
-/** Framer Motion HUD: transport controls + timeline progress. */
+/** Framer Motion HUD: transport controls + timeline scrubber + mute. */
 function Hud() {
-  const { progress, elapsed, phase, isPlaying, play, pause, restart } = useTimeline()
+  const { progress, elapsed, isPlaying, play, pause, restart } = useTimeline()
+  const { segment } = useScene()
+  const { muted, toggleMute } = useAudio()
 
   return (
     <motion.div
@@ -64,12 +75,18 @@ function Hud() {
         >
           Restart
         </button>
+        <button
+          type="button"
+          onClick={toggleMute}
+          className="rounded-full border border-white/20 px-4 py-2 font-display text-sm text-white/80 transition hover:bg-white/10"
+        >
+          {muted ? 'Unmute' : 'Mute'}
+        </button>
         <span className="font-mono text-xs uppercase tracking-widest text-brand-neon">
-          {phase} · {elapsed.toFixed(1)}s
+          {segment.id}. {segment.label} · {elapsed.toFixed(1)}s / 120s
         </span>
       </div>
 
-      {/* Timeline scrubber */}
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
         <div
           className="h-full rounded-full bg-brand-accent transition-[width] duration-100"
