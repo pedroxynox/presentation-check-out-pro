@@ -31,3 +31,4 @@ export type { WorldPalette } from './LightingManager'
 // Audio
 export { AudioManager, audioManager } from './AudioManager'
 export type { TrackConfig } from './AudioManager'
+export { audioEngine } from './AudioEngine'

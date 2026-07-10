@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { TimelineProvider, CameraRig, paletteForPhase } from './components/core'
 import { SCENE_REGISTRY } from './components/scenes/registry'
 import { SceneBloom } from './components/effects'
-import { useScene, useTimeline, useAudio } from './hooks'
+import { useScene, useTimeline, useCinematicAudio } from './hooks'
 import { clamp, mapRange } from './utils'
 
 /**
@@ -172,7 +172,7 @@ function TitleOverlay() {
 function Hud() {
   const { progress, elapsed, isPlaying, play, pause, restart } = useTimeline()
   const { segment } = useScene()
-  const { muted, toggleMute } = useAudio()
+  const { muted, ready, toggleMute } = useCinematicAudio()
 
   return (
     <motion.div
@@ -201,11 +201,16 @@ function Hud() {
           onClick={toggleMute}
           className="rounded-full border border-white/20 px-4 py-2 font-display text-sm text-white/80 transition hover:bg-white/10"
         >
-          {muted ? 'Unmute' : 'Mute'}
+          {muted ? 'Activar sonido' : 'Silenciar'}
         </button>
         <span className="font-mono text-xs uppercase tracking-widest text-brand-neon">
           {segment.id}. {segment.label} · {elapsed.toFixed(1)}s / 120s
         </span>
+        {!ready && (
+          <span className="animate-pulse font-mono text-xs text-white/60">
+            toca para activar el sonido
+          </span>
+        )}
       </div>
 
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
